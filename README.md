@@ -38,8 +38,8 @@ CLI to launch the exercise in the local machine: spark-submit --master local[2] 
 #### Issue with pickles
 
 It was necessary put my helper classes in other file because currently pyspark uses pickles to serialize the objects, and it don't support pickle an object in the current script ('main'). The workaround suggested by Davies Liu is to
-put the classes into a separate module and import it on [Spark returning Pickle error: cannot lookup attribute](https://stackoverflow.com/questions/28569374/spark-returning-pickle-error-cannot-lookup-attribute). Other issue with pickle is that it can not support serialize Inner Classes, this is the reason why I did not put the
-Trip and Station classes under a Utils classes. This was my first try until I have discovered the issue with pickle. (Juliana Oliveira - [Multiprocessing Serialization in Python with Pickle](https://medium.com/@jwnx/multiprocessing-serialization-in-python-with-pickle-9844f6fa1812))
+put the classes into a separate module and import it on [Spark returning Pickle error: cannot lookup attribute](https://stackoverflow.com/questions/28569374/spark-returning-pickle-error-cannot-lookup-attribute). Other issue with pickle is that it do no support serialize Inner Classes, this is the reason why I did not put the
+Trip and Station classes under an Utils classes. This was my first try until I have discovered the issue with pickle. (Juliana Oliveira - [Multiprocessing Serialization in Python with Pickle](https://medium.com/@jwnx/multiprocessing-serialization-in-python-with-pickle-9844f6fa1812))
 
 In this labs was necessary create two helper classes nested under the class Utils. One class was used to store Trip objects and the other class was used to store teh Station object. In both classes the constructor parse the input files to its respective class attribute.
 
