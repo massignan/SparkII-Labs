@@ -56,7 +56,8 @@ if __name__ == "__main__":
 
     # Find the first trip at each terminal
     # Using groupByKey - It should be avoided because it cause unnecessary shuffles
-    firstGrouped = byStartTerminal.groupByKey()
+    # Sort the tuples of values by getKey (startDate) and get the first object.
+    firstGrouped = byStartTerminal.groupByKey().mapValues(lambda x: (sorted(x, key=getKey))[0])
 
     # Using reduceByKey
 
@@ -68,15 +69,18 @@ if __name__ == "__main__":
     print("[LAB3] durationByStart rows count: " + str(durationByStart.count()))
 
     print("[LAB3] grouped rows count: " + str(grouped.count()))
-    print("[LAB3] groupedByKey average" + str(grouped.take(10)))
+    print("[LAB3] groupedByKey average: " + str(grouped.take(10)))
 
     print("[LAB3] result rows count: " + str(result.count()))
-    print("[LAB3] result" + str(result.take(10)))
+    print("[LAB3] result: " + str(result.take(10)))
 
     print("[LAB3] finalAvg rows count: " + str(finalAvg.count()))
-    print("[LAB3] finalAvg" + str(finalAvg.take(10)))
+    print("[LAB3] finalAvg: " + str(finalAvg.take(10)))
 
     print("[LAB3] firstGrouped rows count: " + str(firstGrouped.count()))
-    # print("[LAB3] firstGrouped" + firstGrouped.take(10))
+    firstGroupedList = firstGrouped.take(10)
+    for each in firstGroupedList:
+        print("[LAB3] firstGrouped: " + str(each[0]) + " - " + str(each[1]))
+    print("[LAB3] " + firstGrouped.toDebugString())
 
     sc.stop()

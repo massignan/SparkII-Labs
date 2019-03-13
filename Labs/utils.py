@@ -15,7 +15,7 @@ class Trip(object):
         self.zipCode = x[10]
 
     def __str__(self):
-        return "[" + str(self.id) + "," + \
+        return "Trip(" + str(self.id) + "," + \
                str(self.duration) + "," + \
                str(self.startDate) + "," + \
                str(self.startStation) + "," + \
@@ -25,15 +25,7 @@ class Trip(object):
                str(self.endTerminal) + "," + \
                str(self.bike) + "," + \
                str(self.subscriberType) + "," + \
-               str(self.zipCode) + "," + "}"
-
-    # def __cmp__(self, other):
-    #     me = datetime.strptime(self.startDate, '%m/%d/%Y %H:%M')
-    #     other = datetime.strptime(other.startDate, '%m/%d/%Y %H:%M')
-    #     if me < other:
-    #         return me
-    #     else:
-    #         return other
+               str(self.zipCode) + "," + ")"
 
 
 class Station(object):
