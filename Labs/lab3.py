@@ -1,43 +1,17 @@
 # Import statements
 
 from pyspark import SparkContext
+from datetime import datetime
+# It was necessary put my helper classes in other file because currently pyspark uses pickles to serialize the objects,
+# and it don't support pickle an object in the current script ('main'). The workaround suggested by Davies Liu is to
+# put the classes into a separate module and import it (http://stackoverflow.com/questions/28569374).
+# Other issue with pickle is that it can not support serialize Inner Classes, this is the reason why I did not put the
+# Trip and Station classes under a Utils classes. This was my first try until I have discovered the issue with pickle.
+# (Juliana Oliveira - https://medium.com/@jwnx/multiprocessing-serialization-in-python-with-pickle-9844f6fa1812)
+from utils import *
 
-# Helper Classes Definition
-
-
-class Utils(object):
-    def __init__(self):
-        pass
-
-    class Trip(object):
-        # Trip constructor parse input data
-        def __init__(self, x):
-            self.id = x[0]
-            self.duration = x[1]
-            self.startDate = x[2]
-            self.startStation = x[3]
-            self.startTerminal = x[4]
-            self.endDate = x[5]
-            self.endStation = x[6]
-            self.endTerminal = x[7]
-            self.bike = x[8]
-            self.subscriberType = x[9]
-            self.zipCode = x[10]
-
-    class Station(object):
-        # Station constructor parse input data
-        def __init__(self, x):
-            self.id = x[0]
-            self.name = x[1]
-            self.lat = x[2]  # latitude
-            self.lon = x[3]  # longitude
-            self.docks = x[4]
-            self.landmark = x[5]
-            self.installDate = x[6]
 
 # Helper functions
-
-
 def average(iterable):
     acc = 0
     count = 0
@@ -45,6 +19,10 @@ def average(iterable):
         acc = acc + each
         count = count + 1
     return acc/count
+
+
+def getKey(trip):
+    return datetime.strptime(trip.startDate, '%m/%d/%Y %H:%M')
 
 
 if __name__ == "__main__":
@@ -55,13 +33,13 @@ if __name__ == "__main__":
     input1 = sc.textFile("../data/trips/*")
     header1 = input1.first()
     # Map each row as Trip object. The constructor parse each row
-    trips = input1.filter(lambda row: row != header1).map(lambda x: x.split(",")).map(Utils.Trip)
+    trips = input1.filter(lambda row: row != header1).map(lambda x: x.split(",")).map(Trip)
 
     # RDD for the STATIONS
     input2 = sc.textFile("../data/stations/*")
     header2 = input2.first()
     # Map each row as Station object. The constructor parse each row
-    stations = input2.filter(lambda row: row != header2).map(lambda x: x.split(",")).map(Utils.Station)
+    stations = input2.filter(lambda row: row != header2).map(lambda x: x.split(",")).map(Station)
 
     # Create a <key,value> data, where the key is the start station and the value is only the duration
     byStartTerminal = trips.keyBy(lambda x: x.startStation)
@@ -78,7 +56,7 @@ if __name__ == "__main__":
 
     # Find the first trip at each terminal
     # Using groupByKey - It should be avoided because it cause unnecessary shuffles
-    firstGrouped = byStartTerminal.groupByKey().mapValues(lambda x: x.startDate)
+    firstGrouped = byStartTerminal.groupByKey()
 
     # Using reduceByKey
 
@@ -97,5 +75,8 @@ if __name__ == "__main__":
 
     print("[LAB3] finalAvg rows count: " + str(finalAvg.count()))
     print("[LAB3] finalAvg" + str(finalAvg.take(10)))
+
+    print("[LAB3] firstGrouped rows count: " + str(firstGrouped.count()))
+    # print("[LAB3] firstGrouped" + firstGrouped.take(10))
 
     sc.stop()
