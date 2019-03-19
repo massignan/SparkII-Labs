@@ -42,12 +42,12 @@ if __name__ == "__main__":
     stations = input2.filter(lambda row: row != header2).map(lambda x: x.split(",")).map(Station)
 
     # Create a <key,value> data, where the key is the start station and the value is only the duration
-    byStartTerminal = trips.keyBy(lambda x: x.startStation)
-    durationByStart = byStartTerminal.mapValues(lambda x: float(x.duration))
+    byStartTerminal = trips.keyBy(lambda trip: trip.startStation)
+    durationByStart = byStartTerminal.mapValues(lambda trip: float(trip.duration))
 
     # Calculating the average trip duration by start station
     # Using groupByKey - It should be avoided because it cause unnecessary shuffles
-    grouped = durationByStart.groupByKey().mapValues(lambda x: average(x))
+    grouped = durationByStart.groupByKey().mapValues(lambda tripsDuration: average(tripsDuration))
 
     # Using aggregateByKey
     result = durationByStart.aggregateByKey((0, 0), lambda acc, val: (acc[0] + val, acc[1] + 1),
@@ -57,9 +57,17 @@ if __name__ == "__main__":
     # Find the first trip at each terminal
     # Using groupByKey - It should be avoided because it cause unnecessary shuffles
     # Sort the tuples of values by getKey (startDate) and get the first object.
-    firstGrouped = byStartTerminal.groupByKey().mapValues(lambda x: (sorted(x, key=getKey))[0])
+    firstGrouped = byStartTerminal.groupByKey().mapValues(lambda trips: (sorted(trips, key=getKey))[0])
 
     # Using reduceByKey
+    firstTrip = byStartTerminal.reduceByKey(lambda trip1, trip2: trip1 if datetime.strptime(trip1.startDate, '%m/%d/%Y %H:%M') <
+                                                               datetime.strptime(trip2.startDate, '%m/%d/%Y %H:%M') else trip2)
+
+    # Working with broadcast variable
+    bcStations = sc.broadcast(stations.keyBy(lambda station: station.id).collectAsMap())
+
+    # Joining trips and stations using broadcast join (won't be necessary shuffling)
+    joined = trips.map(lambda trip: (trip, bcStations.value.get(trip.startTerminal), bcStations.value.get(trip.endTerminal)))
 
     # Print results
     print("[LAB3] trips rows count: " + str(trips.count()))
@@ -82,5 +90,17 @@ if __name__ == "__main__":
     for each in firstGroupedList:
         print("[LAB3] firstGrouped: " + str(each[0]) + " - " + str(each[1]))
     print("[LAB3] " + firstGrouped.toDebugString())
+
+    print("[LAB3] firstGrouped rows count: " + str(firstTrip.count()))
+    firstTripList = firstTrip.take(10)
+    for each in firstTripList:
+        print("[LAB3] firstTrip: " + str(each[0]) + " - " + str(each[1]))
+    print("[LAB3] " + firstTrip.toDebugString())
+
+    print("[LAB3] joined rows count: " + str(joined.count()))
+    joinedList = joined.take(10)
+    for each in joinedList:
+        print("[LAB3] joined: " + str(each))
+    print("[LAB3] " + joined.toDebugString())
 
     sc.stop()
