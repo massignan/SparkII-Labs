@@ -36,7 +36,6 @@ if __name__ == "__main__":
 
     end_time = time.time()
 
-
     print("[LAB4] Execution time without persistence: " + str(end_time - start_time))
 
     trips.persist(StorageLevel.MEMORY_ONLY)  # is the same as trips.cache()
@@ -95,6 +94,7 @@ if __name__ == "__main__":
     # serialize even with Java."
 
     # Stop here in order to be possible access the Spark UI and see the Storage tab
+    print("[LAB4] Program stopped. Go to your browser and access Spark UI (127.0.0.1:4040) and see the Storage tab.")
     print("[LAB4] Type ctrl+c to end the program.")
     while True:
         pass
