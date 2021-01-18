@@ -1,6 +1,6 @@
 ## COGNITIVE CLASS.ai: SPARK FUNDAMENTALS II - Labs Exercises Solved in PYTHON
 
-This GIT is the Python solution to [Spark Fundamentals II](https://courses.competencies.ibm.com/courses/course-v1:BDU+BD0212EN+v1/about) course hands on laboratory exercises. The original exercises were programmed only in Scala and in order to develop my Python skills and get be used with Spark I solved all the exercises using Pyhton 2.7.
+This GIT is the Python solution to [Spark Fundamentals II](https://cognitiveclass.ai/courses/spark-rdd/) course hands on laboratory exercises. The original exercises were programmed only in Scala and in order to develop my Python skills and get be used with Spark I solved all the exercises using Pyhton 2.7.
 
 ### Requirements:
 
